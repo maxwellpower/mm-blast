@@ -14,7 +14,7 @@
 # AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
 # ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-VERSION = "1.0.0"
+VERSION = "1.0.1"
 
 import os
 import requests
@@ -97,9 +97,11 @@ def send_messages_to_users():
         "Content-Type": "application/json"
     }
 
+    VERIFY_SSL = os.environ.get("VERIFY_SSL", "true").lower() == "true"
+
     # Get the bot's user ID
     GET_ME_ENDPOINT = "/api/v4/users/me"
-    response = requests.get(MATTERMOST_URL + GET_ME_ENDPOINT, headers=headers)
+    response = requests.get(MATTERMOST_URL + GET_ME_ENDPOINT, headers=headers, verify=VERIFY_SSL)
     if response.status_code != 200:
         print(colored("Failed to get the bot's user ID. Exiting.", "red"))
         exit(1)

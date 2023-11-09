@@ -90,22 +90,22 @@ Once you've set up the slash command in Mattermost (as described in the previous
 
 ## Docker Deployment
 
-To run the script in Docker:
-
-1. Build the Docker image:
+### Run the Docker container:
 
    ```bash
-   docker build -t mm-blast .
+   docker run --env-file .env ghcr.io/maxwellpower/mm-blast
    ```
 
-2. Run the Docker container:
+### Running the Docker Container with Mounted Volumes
+
+1. Add your files to a local folder like "resources" and expose that folder to the app directory in the container.
 
    ```bash
-   docker run --env-file .env mm-blast
+   docker run --env-file .env -v resources:/app ghcr.io/maxwellpower/mm-blast
    ```
 
    Note: If you're running in API mode, make sure to expose port 8000:
 
    ```bash
-   docker run --env-file .env -p 8000:8000 mm-blast
+   docker run --env-file .env -p 8000:8000 ghcr.io/maxwellpower/mm-blast
    ```
