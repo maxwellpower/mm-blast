@@ -31,6 +31,7 @@ Send direct messages to a list of user IDs in Mattermost as a bot. This tool can
    - `MESSAGE` or `MESSAGE_FILE_PATH`: The message to send. Can be provided directly as a string or as a path to a file containing the message.
    - `RUN_MODE`: Either "script" (default) for standalone mode or "api" for API server mode.
    - `SHARED_SECRET`: A secret key used to authenticate incoming API requests (only required for API mode).
+   - `VERIFY_SSL`: Verify the SSL certificate. Default = `true`.
 
 ## Usage
 
@@ -70,6 +71,7 @@ Now, in any Mattermost channel, you can use the slash command `/blast send` to t
 Once you've set up the slash command in Mattermost (as described in the previous section), you can use it to send direct messages to multiple users. Here's how:
 
 1. **Syntax**:
+
    ```
    /blast send --users=<USER_IDS> --message=<MESSAGE>
    ```
@@ -92,20 +94,25 @@ Once you've set up the slash command in Mattermost (as described in the previous
 
 ### Run the Docker container:
 
-   ```bash
-   docker run --env-file .env ghcr.io/maxwellpower/mm-blast
-   ```
+```bash
+docker run --env-file .env ghcr.io/maxwellpower/mm-blast
+```
 
 ### Running the Docker Container with Mounted Volumes
 
 1. Add your files to a local folder like "resources" and expose that folder to the app directory in the container.
 
-   ```bash
-   docker run --env-file .env -v resources:/app ghcr.io/maxwellpower/mm-blast
-   ```
+```bash
+docker run --env-file .env -v resources:/app ghcr.io/maxwellpower/mm-blast
+```
 
-   Note: If you're running in API mode, make sure to expose port 8000:
+### Running the container in API/Slash Command mode
 
-   ```bash
-   docker run --env-file .env -p 8000:8000 ghcr.io/maxwellpower/mm-blast
-   ```
+** Note: If you're running in API mode, make sure to expose port 8000 **
+
+```bash
+docker run --env-file .env -p 8000:8000 ghcr.io/maxwellpower/mm-blast
+```
+
+
+        requests.exceptions.SSLError: HTTPSConnectionPool(host='servicenow---sandbox.cloud.mattermost.com', port=443): Max retries exceeded with url: /api/v4/channels/direct (Caused by SSLError(SSLCertVerificationError(1, '[SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1129)')))

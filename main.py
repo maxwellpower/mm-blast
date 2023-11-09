@@ -14,7 +14,7 @@
 # AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
 # ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-VERSION = "1.0.1"
+VERSION = "1.0.2"
 
 import os
 import requests
@@ -25,7 +25,8 @@ import logging
 
 # Setup logging
 logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+logging.captureWarnings(True)
+logger = logging.getLogger(f"MM-BLAST v{VERSION}")
 
 app = FastAPI()
 
@@ -85,7 +86,7 @@ def send_messages_to_users():
             message = file.read()
 
     if not message:
-        print(colored("Error: No message provided in either the environment variable or the file.", "red"))
+        logger.error("No message provided in either the environment variable or the file.")
         exit(1)
 
     bot_api_key = os.environ.get("BOT_API_KEY", None)
@@ -102,9 +103,11 @@ def send_messages_to_users():
     # Get the bot's user ID
     GET_ME_ENDPOINT = "/api/v4/users/me"
     response = requests.get(MATTERMOST_URL + GET_ME_ENDPOINT, headers=headers, verify=VERIFY_SSL)
+    
     if response.status_code != 200:
-        print(colored("Failed to get the bot's user ID. Exiting.", "red"))
+        logger.error(f"Failed to get the bot's user ID. Status Code: {response.status_code}. Response: {response.text}")
         exit(1)
+    
     BOT_USER_ID = response.json()["id"]
 
     CREATE_DM_ENDPOINT = "/api/v4/channels/direct"
@@ -113,9 +116,9 @@ def send_messages_to_users():
     # Send DM to each user
     for user_id in user_ids:
         # Create or get DM channel ID
-        response = requests.post(MATTERMOST_URL + CREATE_DM_ENDPOINT, headers=headers, json=[BOT_USER_ID, user_id])
+        response = requests.post(MATTERMOST_URL + CREATE_DM_ENDPOINT, headers=headers, verify=VERIFY_SSL, json=[BOT_USER_ID, user_id])
         if response.status_code != 201:
-            print(colored(f"Failed to get or create DM channel for user {user_id}. Error: {response.text}", "yellow"))
+            logger.warning(f"Failed to get or create DM channel for user {user_id}. Error: {response.text}")
             continue
         channel_id = response.json()["id"]
 
@@ -124,13 +127,12 @@ def send_messages_to_users():
             "channel_id": channel_id,
             "message": message
         }
-        response = requests.post(MATTERMOST_URL + CREATE_POST_ENDPOINT, headers=headers, json=payload)
+        response = requests.post(MATTERMOST_URL + CREATE_POST_ENDPOINT, headers=headers, verify=VERIFY_SSL, json=payload)
         if response.status_code != 201:
-            print(colored(f"Failed to send message to user {user_id}. Error: {response.text}", "yellow"))
+            logger.warning(f"Failed to send message to user {user_id}. Error: {response.text}")
         else:
-            print(colored(f"Sent message to user {user_id}.", "green"))
-
-    print(colored("Process completed!", "cyan"))
+            logger.info(f"Sent message to user {user_id}.")
+    logger.info("Process Complete!")
 
 if __name__ == "__main__":
     required_env_vars = ["MATTERMOST_URL", "BOT_API_KEY"]
