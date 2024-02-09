@@ -99,6 +99,8 @@ def send_messages_to_users():
     }
 
     VERIFY_SSL = os.environ.get("VERIFY_SSL", "true").lower() == "true"
+    if not VERIFY_SSL:
+        logger.warning("VERIFY SSL DISABLED. SSL WARNINGS WILL BE PRINTED FOR ALL API CALLS.")
 
     # Get the bot's user ID
     GET_ME_ENDPOINT = "/api/v4/users/me"
